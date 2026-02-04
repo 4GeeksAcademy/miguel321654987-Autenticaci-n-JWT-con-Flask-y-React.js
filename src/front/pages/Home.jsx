@@ -6,30 +6,31 @@ export const Home = () => {
 
 	const { store, dispatch } = useGlobalReducer()
 
-	const loadMessage = async () => {
-		try {
-			const backendUrl = import.meta.env.VITE_BACKEND_URL
+	const login = async (username, password) => {
+     const resp = await fetch(`https://your_api.com/login`, { 
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }) 
+     })
 
-			if (!backendUrl) throw new Error("VITE_BACKEND_URL is not defined in .env file")
+     if(!resp.ok) throw Error("There was a problem in the login request")
 
-			const response = await fetch(backendUrl + "/api/hello")
-			const data = await response.json()
+     if(resp.status === 401){
+          throw("Invalid credentials")
+     }
+     else if(resp.status === 400){
+          throw ("Invalid email or password format")
+     }
+     const data = await resp.json()
+     // Guarda el token en la localStorage
+     // También deberías almacenar el usuario en la store utilizando la función setItem
+     localStorage.setItem("jwt-token", data.token);
 
-			if (response.ok) dispatch({ type: "set_hello", payload: data.message })
-
-			return data
-
-		} catch (error) {
-			if (error.message) throw new Error(
-				`Could not fetch the message from the backend.
-				Please check if the backend is running and the backend port is public.`
-			);
-		}
-
-	}
+     return data
+}
 
 	useEffect(() => {
-		loadMessage()
+		login()
 	}, [])
 
 	return (
