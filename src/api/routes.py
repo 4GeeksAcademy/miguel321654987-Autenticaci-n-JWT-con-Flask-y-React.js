@@ -30,25 +30,28 @@ def handle_hello():
 # La función create_access_token() se utiliza para generar el JWT
 @api.route("/login", methods=["POST"])
 def create_token():
-    username = request.json.get("username", None)
+    email = request.json.get("email", None)
     password = request.json.get("password", None)
 
     # Consulta la base de datos por el nombre de usuario y la contraseña
-    user = db.session.execute(select(User).where(User.username == username, User.password == password)).scalar_one_or_none()
+    user = db.session.execute(select(User).where(User.email == email, User.password == password)).scalar_one_or_none()
     if user is None:
         return jsonify({"msg": "Bad username or password"}), 401
     
     # Crea un nuevo token con el id de usuario dentro
-    access_token = create_access_token(identity=user.id)
-    return jsonify({ "token": access_token, "user_id": user.id })
+    access_token = create_access_token(identity=str(user.id))
+    return jsonify({ "token": access_token, "user_id": user.id})
 
 
 # Protege una ruta con jwt_required, bloquea las peticiones sin un JWT válido
 @api.route("/protected", methods=["GET"])
 @jwt_required()
 def protected():
-    # Accede a la identidad del usuario actual con get_jwt_identity
+    # Accede a la identidad del usuario actual
     current_user_id = get_jwt_identity()
-    user = User.query.get(current_user_id)
+    user = db.session.get(User, int(current_user_id))
     
-    return jsonify({"id": user.id, "username": user.username }), 200
+    if user is None:
+        return jsonify({"msg": "Usuario no encontrado"}), 404
+    
+    return jsonify({"id": user.id, "email": user.email }), 200

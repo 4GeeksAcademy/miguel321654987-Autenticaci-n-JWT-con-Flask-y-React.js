@@ -6,11 +6,11 @@ export const Home = () => {
 
 	const { store, dispatch } = useGlobalReducer()
 
-	const login = async (username, password) => {
+	const login = async (email, password) => {
      const resp = await fetch(`https://your_api.com/login`, { 
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password }) 
+          body: JSON.stringify({ email, password }) 
      })
 
      if(!resp.ok) throw Error("There was a problem in the login request")
@@ -23,14 +23,38 @@ export const Home = () => {
      }
      const data = await resp.json()
      // Guarda el token en la localStorage
-     // También deberías almacenar el usuario en la store utilizando la función setItem
      localStorage.setItem("jwt-token", data.token);
 
      return data
 }
 
+const getProtectedData = async () => {
+    // 1. Recuperamos el token almacenado
+    const token = localStorage.getItem("jwt-token");
+
+    // 2. Realizamos la petición con el Header de Authorization
+    const resp = await fetch(`https://your_://api.com`, { 
+         method: "GET",
+         headers: { 
+             "Content-Type": "application/json",
+             "Authorization": `Bearer ${token}` // Importante: incluir 'Bearer '
+         }
+    })
+    // 3. Manejo de errores siguiendo tu lógica
+    if(!resp.ok) throw Error("There was a problem with the protected request")
+    if(resp.status === 401){
+         throw ("Invalid or expired token")
+    }
+    else if(resp.status === 404){
+         throw ("User not found")
+    }
+    // 4. Retornamos los datos (id y email)
+    const data = await resp.json()
+    return data
+}
+
+
 	useEffect(() => {
-		login()
 	}, [])
 
 	return (
