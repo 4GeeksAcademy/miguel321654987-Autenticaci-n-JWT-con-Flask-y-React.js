@@ -13,7 +13,7 @@ export const Home = () => {
 
 
      const signup = async () => {
-          const resp = await fetch(`https://expert-space-pancake-g4wjjjwpwwxrfw495-3001.app.github.dev/api/signup`, {
+          const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/signup`, {
                method: "POST",
                headers: { "Content-Type": "application/json" },
                body: JSON.stringify({ email: email, password: password })
@@ -35,7 +35,7 @@ const login = async () => {
         return; // Detenemos la ejecución aquí mismo
     }
     try {
-        const resp = await fetch(`https://expert-space-pancake-g4wjjjwpwwxrfw495-3001.app.github.dev/api/login`, {
+        const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -81,7 +81,7 @@ const login = async () => {
                throw Error("No token found");
           }
           // 2. Realizamos la petición con el Header de Authorization
-          const resp = await fetch(`https://expert-space-pancake-g4wjjjwpwwxrfw495-3001.app.github.dev/api/demo`, {
+          const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/demo`, {
                method: "GET",
                headers: {
                     "Content-Type": "application/json",
